@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dairy Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS for additional styling -->
+    <style>
+    
+    
+    
+  
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+         	margin-top: 85px;
+         margin-left:270px ;
+         	width: 80%;
+          
+          
+        }
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+        }
+        .add-more {
+            margin-top: 10px;
+        }
+
+        /* Reset and Body Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; /* Light background */
+           
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 70px; /* Increased navbar height */
+        }
+
+        /* Make the navbar fixed at the top */
+        .navbar.fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1030; /* Ensures it's above other content */
+        }
+
+        /* Sidebar Styling */
+        .menu {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 56px; /* To avoid overlap with the fixed navbar */
+            left: 0; /* Explicitly position the sidebar to the left */
+            background-color: #343a40;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #495057;
+            border-left: 5px solid #007bff; /* Highlight with a blue border */
+        }
+
+        /* Content Styling */
+   
+
+        .content h1 {
+            font-size: 28px;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        /* Profile Image Styling */
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        /* Navbar Brand Styling */
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-left: 20px; /* Added margin-left to move it a little from the left */
+        }
+
+        .navbar .dropdown-menu {
+            min-width: 200px;
+        }
+
+        .navbar .dropdown-menu a {
+            font-size: 14px;
+            color: #343a40;
+        }
+
+        .navbar .dropdown-menu a:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* For smaller screens, adjust navbar and sidebar */
+        @media (max-width: 991px) {
+            .menu {
+                width: 200px;
+                transform: translateX(-250px); /* Initially hide the menu */
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .navbar-toggler {
+                display: block;
+            }
+        }
+
+        /* For extra small screens, make the menu visible when toggled */
+        @media (max-width: 767px) {
+            .menu {
+                transform: translateX(-100%); /* Completely hide the menu by default */
+            }
+
+            .menu.show {
+                transform: translateX(0); /* Show menu on toggle */
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            /* Stack profile and logout button vertically */
+            .navbar-right {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar-right img {
+                margin-bottom: 10px; /* Add space between profile image and logout button */
+            }
+
+            .navbar-right a {
+                margin-top: 5px; /* Add margin to the logout button */
+            }
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            text-align: center;
+            padding: 10px;
+        }
+
+        table th {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Shree Datta Godavari Dairy</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex align-items-center" style="margin-right: 20px;">
+                <a href="/logout" class="btn btn-outline-light ml-3">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+   <div class="menu" id="sidebar">
+			<!-- Dashboard Link -->
+			<a href="/dashboard"><i class="fas fa-tachometer-alt"></i>
+				Dashboard</a> <a href="#" data-bs-toggle="collapse"
+				data-bs-target="#companyMenu" aria-expanded="false"
+				aria-controls="companyMenu"><i class="fas fa-building"></i>
+				Company</a>
+			<div id="companyMenu" class="collapse ms-4">
+				<a href="/companies/new"><i class="fas fa-plus-circle"></i> Add
+					Company</a> <a href="/companies"><i class="fas fa-list"></i> List
+					Company</a>
+			</div>
+
+				<a href="#" data-bs-toggle="collapse" data-bs-target="#unitMenu"
+				aria-expanded="false" aria-controls="unitMenu"><i
+				class="fas fa-box"></i> Unit</a>
+			<div id="unitMenu" class="collapse ms-4">
+				<a href="/units/new"><i class="fas fa-plus-circle"></i> Add Unit</a>
+				<a href="/units"><i class="fas fa-list"></i> List Unit</a>
+			</div>
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#ProductMenu"
+				aria-expanded="false" aria-controls="ProductMenu"><i
+				class="fa-brands fa-product-hunt"></i> Product </a>
+			<div id="ProductMenu" class="collapse ms-4">
+				<a href="/products/new"><i class="fas fa-plus-circle"></i> Add
+					Product</a> <a href="/products"><i class="fas fa-list"></i> List
+					Product</a>
+			</div>
+
+
+			<a href="#" data-bs-toggle="collapse"
+				data-bs-target="#wholesalerMenu" aria-expanded="false"
+				aria-controls="wholesalerMenu"><i class="fas fa-truck"></i>
+				Wholesaler</a>
+			<div id="wholesalerMenu" class="collapse ms-4">
+				<a href="/wholesalers/add"><i class="fas fa-plus-circle"></i>
+					Add Wholesaler</a> <a href="/wholesalers/list"><i class="fas fa-list"></i>
+					List Wholesaler</a>
+			</div>
+
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#retailerMenu"
+				aria-expanded="false" aria-controls="retailerMenu"><i
+				class="fas fa-store"></i> Retailer</a>
+			<div id="retailerMenu" class="collapse ms-4">
+				<a href="/retailers/add"><i class="fas fa-plus-circle"></i> Add
+					Retailer</a> <a href="/retailers/list"><i class="fas fa-list"></i> List
+					Retailer</a>
+			</div>
+
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#BiLLMenu"
+				aria-expanded="false" aria-controls="BillMenu"><i
+				class="fa-solid fa-wallet"></i> BiLL</a>
+			<div id="BiLLMenu" class="collapse ms-4">
+				<a href="/createBill"><i class="fas fa-plus-circle"></i> Create
+					Bill</a> <a href="/listBill"><i class="fas fa-list"></i> List Bill</a>
+			</div>
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#PaymentMenu"
+				aria-expanded="false" aria-controls="PaymentMenu"><i
+				class="fa-solid fa-indian-rupee-sign"></i> Payment</a>
+			<div id="PaymentMenu" class="collapse ms-4">
+				<a href="/payments/form"><i class="fas fa-plus-circle"></i> Add
+					Transaction </a> <a href="/payments/list"><i class="fas fa-list"></i>
+					View Transaction</a>
+			</div>
+			</div>
+
+    <!-- Main Content -->
+
+<div class="container">
+    <form th:action="@{/createBill}" th:object="${bill}" method="post">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label>Bill No.</label>
+                <input type="text" name="billNo" class="form-control" id="billNo" readonly>
+            </div>
+            <div class="col-md-4">
+                <label>Customer Type</label>
+                <select name="customerType" class="form-select" id="customerType" required>
+                    <option value="Customer">Customer</option>
+                    <option value="Wholesaler">Wholesaler</option>
+                    <option value="Retailer">Retailer</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Date</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Customer Name</label>
+                <input type="text" name="fullName" class="form-control" placeholder="Customer Name" required>
+            </div>
+            <div class="col-md-6">
+                <label>Mobile No.</label>
+                <input type="text" name="mobileNumber" class="form-control" placeholder="Enter Mobile Number" required>
+            </div>
+        </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="product" class="form-label">Product Name</label>
+            <select th:field="*{item}" class="form-control" id="product" required>
+                <option value="">Select Product</option>
+                <option th:each="product : ${products}"
+                        th:value="${product.id}"
+                        th:data-customer="${product.customerPrice}"
+                        th:data-wholesaler="${product.wholesalerPrice}"
+                        th:data-retailer="${product.retailerPrice}"
+                        th:text="${product.name}"></option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label style="margin-top: 9px;">Quantity</label>
+            <input type="number" name="qty" class="form-control" required>
+        </div>
+        </div>
+  <div class="row mb-3">
+        <div class="col-md-6">
+            <label>Price</label>
+            <input type="text" name="price" id="productPrice" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+            <label>Subtotal</label>
+            <input type="number" name="subtotal" class="form-control" readonly>
+        </div>
+</div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label>SGST (%)</label>
+                <input type="number" name="sgst" id="sgst" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>CGST (%)</label>
+                <input type="number" name="cgst" id="cgst" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Discount</label>
+                <input type="number" name="discount" id="discount" class="form-control">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Total</label>
+                <input type="number" name="total" id="total" class="form-control" readonly>
+            </div>
+            <div class="col-md-6">
+                <label>Paid Amount</label>
+                <input type="number" name="paidAmount" id="paidAmount" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Balance Due</label>
+            <input type="number" name="balanceDue" id="balanceDue" class="form-control" readonly>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary">Generate Bill</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-fill Bill No. on page load
+        fetch('/next-bill-no')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('billNo').value = data;
+            })
+            .catch(error => console.error('Error fetching Bill No:', error));
+
+        const customerTypeElement = document.getElementById('customerType');
+        const productElement = document.getElementById('product');
+        const priceField = document.getElementById('productPrice');
+
+        function updatePrice() {
+            const customerType = customerTypeElement.value;
+            const selectedProduct = productElement.options[productElement.selectedIndex];
+
+            let price = 0;
+            if (customerType === 'Wholesaler') {
+                price = selectedProduct.getAttribute('data-wholesaler');
+            } else if (customerType === 'Retailer') {
+                price = selectedProduct.getAttribute('data-retailer');
+            } else {
+                price = selectedProduct.getAttribute('data-customer');
+            }
+            priceField.value = price || '';
+        }
+
+        customerTypeElement.addEventListener('change', updatePrice);
+        productElement.addEventListener('change', updatePrice);
+
+        function calculateTotal() {
+            const qty = parseFloat(document.querySelector('[name="qty"]').value) || 0;
+            const price = parseFloat(priceField.value) || 0;
+            const subtotal = qty * price;
+            document.querySelector('[name="subtotal"]').value = subtotal.toFixed(2);
+
+            const cgst = parseFloat(document.getElementById('cgst').value) || 0;
+            const sgst = parseFloat(document.getElementById('sgst').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+
+            const cgstAmount = (subtotal * cgst) / 100;
+            const sgstAmount = (subtotal * sgst) / 100;
+            const total = subtotal + cgstAmount + sgstAmount - discount;
+
+            document.getElementById('total').value = total.toFixed(2);
+        }
+
+        function calculateBalance() {
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+            const balanceDue = total - paidAmount;
+
+            document.getElementById('balanceDue').value = balanceDue.toFixed(2);
+        }
+
+        document.querySelector('[name="qty"]').addEventListener('input', calculateTotal);
+        document.getElementById('cgst').addEventListener('input', calculateTotal);
+        document.getElementById('sgst').addEventListener('input', calculateTotal);
+        document.getElementById('discount').addEventListener('input', calculateTotal);
+        document.getElementById('paidAmount').addEventListener('input', calculateBalance);
+    });
+</script>
+
+
+  
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

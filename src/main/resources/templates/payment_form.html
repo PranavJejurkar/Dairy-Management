@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payment Form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Reset and Body Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; /* Light background */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 70px; /* Increased navbar height */
+        }
+
+        /* Make the navbar fixed at the top */
+        .navbar.fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1030; /* Ensures it's above other content */
+        }
+
+        /* Sidebar Styling */
+        .menu {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 56px; /* To avoid overlap with the fixed navbar */
+            left: 0; /* Explicitly position the sidebar to the left */
+            background-color: #343a40;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #495057;
+            border-left: 5px solid #007bff; /* Highlight with a blue border */
+        }
+
+        /* Content Styling */
+        .content {
+            margin-left: 250px;
+            padding: 80px 20px 20px 20px;
+            background-color: #ffffff;
+            min-height: 100vh;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .content h1 {
+            font-size: 28px;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        .text-center {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="/dashboard">Shree Datta Godavari Dairy</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex align-items-center" style="margin-right: 20px;">
+                <a href="/logout" class="btn btn-outline-light ml-3">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="menu" id="sidebar">
+        <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/payments/form"><i class="fas fa-plus-circle"></i> Add Payment</a>
+        <a href="/payments/list"><i class="fas fa-list"></i> View Payments</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1>Payment Form</h1>
+        <form action="/payments/add" method="post" class="container p-4 border rounded shadow">
+
+            <div class="mb-3 row">
+                <div class="col">
+                    <label for="customerName" class="form-label">Customer Name:</label>
+                    <!-- Dynamic Customer Name Dropdown -->
+                    <select id="customerName" class="form-select" name="customerName" required>
+                        <option th:each="customer : ${bills}" 
+                                th:value="${customer.fullName}" 
+                                th:text="${customer.fullName}">Customer Name</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="billId" class="form-label">Bill ID:</label>
+                    <!-- Dynamic Bill ID Dropdown -->
+                    <select id="billId" class="form-select" name="billId" required>
+                        <option th:each="bill : ${bills}" 
+                                th:value="${bill.id}" 
+                                th:text="${bill.id}">Bill ID</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col">
+                    <label for="amount" class="form-label">Total Amount:</label>
+                    <input type="number" id="amount" class="form-control" name="amount" step="0.01" required oninput="calculateDueAmount()">
+                </div>
+                <div class="col">
+                    <label for="paidAmount" class="form-label">Paid Amount:</label>
+                    <input type="number" id="paidAmount" class="form-control" name="paidAmount" step="0.01" required oninput="calculateDueAmount()">
+                </div>
+                <div class="col">
+                    <label for="dueAmount" class="form-label">Due Amount:</label>
+                    <input type="number" id="dueAmount" class="form-control" name="dueAmount" step="0.01" readonly>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="paymentMethod" class="form-label">Payment Method:</label>
+                <select id="paymentMethod" class="form-select" name="paymentMethod" onchange="togglePaymentFields()">
+                    <option value="Cash">Cash</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Credit Card">Credit Card</option>
+                </select>
+            </div>
+
+            <!-- Dynamic Fields -->
+            <div id="bankTransferField" class="mb-3" style="display: none;">
+                <label for="accountNo" class="form-label">Enter Account Number:</label>
+                <input type="text" id="accountNo" class="form-control" name="accountNo">
+            </div>
+
+            <div id="creditCardField" class="mb-3" style="display: none;">
+                <label for="creditCardNo" class="form-label">Enter Credit Card Number:</label>
+                <input type="text" id="creditCardNo" class="form-control" name="creditCardNo">
+            </div>
+
+            <div id="upiField" class="mb-3" style="display: none;">
+                <label for="upiId" class="form-label">Enter UPI ID:</label>
+                <input type="text" id="upiId" class="form-control" name="upiId">
+            </div>
+
+            <div class="text-center mb-3">
+                <button type="submit" class="btn btn-success">Submit Payment</button>
+            </div>
+
+        </form>
+    </div>
+
+   <script>
+    document.getElementById("customerName").addEventListener("change", function() {
+        var customerName = this.value;
+        
+        fetch(`/payments/billDetails/${customerName}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    let bill = data[0];  // Taking the first bill if multiple exist
+                    document.getElementById("billId").value = bill.id;
+                    document.getElementById("amount").value = bill.total;
+                    document.getElementById("paidAmount").value = bill.paidAmount;
+                    document.getElementById("dueAmount").value = bill.balanceDue;
+                } else {
+                    alert("No bills found for this customer.");
+                }
+            })
+            .catch(error => console.error("Error fetching bill details:", error));
+    });
+</script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
