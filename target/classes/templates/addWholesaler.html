@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Reset and Body Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; /* Light background */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 70px; /* Increased navbar height */
+        }
+
+        /* Make the navbar fixed at the top */
+        .navbar.fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1030; /* Ensures it's above other content */
+        }
+
+        /* Sidebar Styling */
+        .menu {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 56px; /* To avoid overlap with the fixed navbar */
+            left: 0; /* Explicitly position the sidebar to the left */
+            background-color: #343a40;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #495057;
+            border-left: 5px solid #007bff; /* Highlight with a blue border */
+        }
+
+        /* Content Styling */
+        .content {
+            margin-left: 250px;
+            padding: 80px 20px 20px 20px;
+            background-color: #ffffff;
+            min-height: 100vh;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .content h1 {
+            font-size: 28px;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        /* Profile Image Styling */
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        /* Navbar Brand Styling */
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-left: 20px; /* Added margin-left to move it a little from the left */
+        }
+
+        /* Modal styles for profile */
+        .modal-content {
+            max-width: 500px;
+        }
+
+        /* For smaller screens, adjust navbar and sidebar */
+        @media (max-width: 991px) {
+            .menu {
+                width: 200px;
+                transform: translateX(-250px); /* Initially hide the menu */
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .navbar-toggler {
+                display: block;
+            }
+        }
+
+        /* For extra small screens, make the menu visible when toggled */
+        @media (max-width: 767px) {
+            .menu {
+                transform: translateX(-100%); /* Completely hide the menu by default */
+            }
+
+            .menu.show {
+                transform: translateX(0); /* Show menu on toggle */
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            /* Stack profile and logout button vertically */
+            .navbar-right {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar-right img {
+                margin-bottom: 10px; /* Add space between profile image and logout button */
+            }
+
+            .navbar-right a {
+                margin-top: 5px; /* Add margin to the logout button */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="/dashboard">Shree Datta Godavari Dairy</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex align-items-center" style="margin-right: 20px;">
+                <a href="/logout" class="btn btn-outline-light ml-3">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+      	<div class="menu" id="sidebar">
+			<!-- Dashboard Link -->
+			<a href="/dashboard"><i class="fas fa-tachometer-alt"></i>
+				Dashboard</a> <a href="#" data-bs-toggle="collapse"
+				data-bs-target="#companyMenu" aria-expanded="false"
+				aria-controls="companyMenu"><i class="fas fa-building"></i>
+				Company</a>
+			<div id="companyMenu" class="collapse ms-4">
+				<a href="/companies/new"><i class="fas fa-plus-circle"></i> Add
+					Company</a> <a href="/companies"><i class="fas fa-list"></i> List
+					Company</a>
+			</div>
+
+				<a href="#" data-bs-toggle="collapse" data-bs-target="#unitMenu"
+				aria-expanded="false" aria-controls="unitMenu"><i
+				class="fas fa-box"></i> Unit</a>
+			<div id="unitMenu" class="collapse ms-4">
+				<a href="/units/new"><i class="fas fa-plus-circle"></i> Add Unit</a>
+				<a href="/units"><i class="fas fa-list"></i> List Unit</a>
+			</div>
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#ProductMenu"
+				aria-expanded="false" aria-controls="ProductMenu"><i
+				class="fa-brands fa-product-hunt"></i> Product </a>
+			<div id="ProductMenu" class="collapse ms-4">
+				<a href="/products/new"><i class="fas fa-plus-circle"></i> Add
+					Product</a> <a href="/products"><i class="fas fa-list"></i> List
+					Product</a>
+			</div>
+
+			<a href="#" data-bs-toggle="collapse"
+				data-bs-target="#wholesalerMenu" aria-expanded="false"
+				aria-controls="wholesalerMenu"><i class="fas fa-truck"></i>
+				Wholesaler</a>
+			<div id="wholesalerMenu" class="collapse ms-4">
+				<a href="/wholesalers/add"><i class="fas fa-plus-circle"></i>
+					Add Wholesaler</a> <a href="/wholesalers/list"><i class="fas fa-list"></i>
+					List Wholesaler</a>
+			</div>
+
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#retailerMenu"
+				aria-expanded="false" aria-controls="retailerMenu"><i
+				class="fas fa-store"></i> Retailer</a>
+			<div id="retailerMenu" class="collapse ms-4">
+				<a href="/retailers/add"><i class="fas fa-plus-circle"></i> Add
+					Retailer</a> <a href="/retailers/list"><i class="fas fa-list"></i> List
+					Retailer</a>
+			</div>
+
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#BiLLMenu"
+				aria-expanded="false" aria-controls="BillMenu"><i
+				class="fa-solid fa-wallet"></i> BiLL</a>
+			<div id="BiLLMenu" class="collapse ms-4">
+				<a href="/createBill"><i class="fas fa-plus-circle"></i> Create
+					Bill</a> <a href="/listBill"><i class="fas fa-list"></i> List Bill</a>
+			</div>
+
+			<a href="#" data-bs-toggle="collapse" data-bs-target="#PaymentMenu"
+				aria-expanded="false" aria-controls="PaymentMenu"><i
+				class="fa-solid fa-indian-rupee-sign"></i> Payment</a>
+			<div id="PaymentMenu" class="collapse ms-4">
+				<a href="/payments/form"><i class="fas fa-plus-circle"></i> Add
+					Transaction </a> <a href="/payments/list"><i class="fas fa-list"></i>
+					View Transaction</a>
+			</div>
+			</div>
+    <!-- Main Content -->
+   <div class="content">
+      
+        <form th:action="@{/wholesalers/save}" th:object="${wholesaler}" method="POST" enctype="multipart/form-data" class="container  p-4 border rounded shadow">
+    
+    <!-- Name and Mobile No on the same line -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}">
+        </div>
+        <div class="col-md-6">
+            <label for="mobileNo" class="form-label">Mobile No</label>
+            <input type="text" class="form-control" id="mobileNo" th:field="*{mobileNo}">
+        </div>
+    </div>
+
+    <!-- Email and Vehicle No on the same line -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" th:field="*{email}">
+        </div>
+        <div class="col-md-6">
+            <label for="vehicleNo" class="form-label">Vehicle No</label>
+            <input type="text" class="form-control" id="vehicleNo" th:field="*{vehicleNo}">
+        </div>
+    </div>
+
+    <!-- Company and Adhar Card on the same line -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="company" class="form-label">Company</label>
+            <select class="form-control" id="company" th:field="*{company}">
+                <option value="">Select Company</option>
+                <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.name}"></option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="adharCardPhoto" class="form-label">Adhar Card</label>
+            <input type="file" class="form-control" id="adharCardPhoto" name="adharCardPhoto">
+        </div>
+    </div>
+
+    <!-- Passport Photo and Licence Copy on the same line -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="passportPhoto" class="form-label">Passport Photo</label>
+            <input type="file" class="form-control" id="passportPhoto" name="passportPhoto">
+        </div>
+        <div class="col-md-6">
+            <label for="licenceCopy" class="form-label">Licence Copy</label>
+            <input type="file" class="form-control" id="licenceCopy" name="licenceCopy">
+        </div>
+    </div>
+
+    <center><button type="submit" class="btn btn-success">Save Wholesaler</button></center>
+</form>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('qty').addEventListener('input', calculateTotal);
+        document.getElementById('price').addEventListener('input', calculateTotal);
+        document.getElementById('gst').addEventListener('input', calculateTotal);
+        document.getElementById('paidAmount').addEventListener('input', calculateBalance);
+
+        function calculateTotal() {
+            const qty = parseFloat(document.getElementById('qty').value) || 0;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const gst = parseFloat(document.getElementById('gst').value) || 0;
+
+            const total = qty * price + gst;
+            document.getElementById('total').value = total.toFixed(2);
+        }
+
+        function calculateBalance() {
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+
+            document.getElementById('balanceDue').value = (total - paid).toFixed(2);
+        }
+    </script>
+</body>
+</html>
